@@ -2,43 +2,6 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>AWS VPC – Private EC2 Hosting with Bastion & NAT Gateways</title>
-
-  <!-- ============ Simple Styling ============ -->
-  <style>
-    :root {
-      --blue: #0d6efd;
-      --dark: #212529;
-      --light: #f8f9fa;
-    }
-    * { box-sizing: border-box; }
-    body {
-      font-family: "Segoe UI", Roboto, Arial, sans-serif;
-      margin: 0;
-      background: var(--light);
-      color: var(--dark);
-      line-height: 1.55;
-      padding: 2.5rem 1rem 4rem;
-    }
-    main { max-width: 900px; margin: auto; }
-    h1, h2, h3 { color: var(--blue); font-weight: 600; }
-    h1 { margin-bottom: .2em; }
-    h2 { margin-top: 2.2rem; border-bottom: 2px solid #dee2e6; padding-bottom: .35rem; }
-    p, li { font-size: 1.05rem; }
-    ul { margin-left: 1.2em; }
-    li { margin: .35em 0; }
-    pre, code { background: #e9ecef; font-family: Consolas, monospace; padding: .2rem .4rem; border-radius: 4px; }
-    pre { display: block; padding: 1rem; overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; font-size: .95rem; }
-    th, td { padding: .5rem .65rem; border: 1px solid #ced4da; }
-    th { background: #e2e6ea; text-align: left; }
-    .badge { background: var(--blue); color: #fff; padding: .18rem .55rem; border-radius: .25rem; font-size: .8rem; }
-    .diagram { border: 1px solid #ced4da; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,.06); margin: 1rem 0 2rem; }
-    img { width: 100%; height: auto; display: block; }
-    .note { background: #e7f5ff; border-left: 4px solid #0d6efd; padding: .8rem 1rem; margin: 1.5rem 0; }
-    a { color: var(--blue); text-decoration: none; }
-    a:hover { text-decoration: underline; }
-  </style>
 </head>
 <body>
 <main>
@@ -53,7 +16,7 @@
   This project illustrates how to design and deploy a two-AZ, high-availability network in AWS that:
 </p>
 <ul>
-  <li>Isolates <strong>application EC2 instances</strong>, <strong>MySQL&nbsp;RDS</strong>, and an in-memory <strong>cache node</strong> in <em>private subnets</em>.</li>
+  <li>Isolates <strong>application EC2 instances</strong>, <strong>MySQL&nbsp;RDS</strong> in <em>private subnets</em>.</li>
   <li>Provides controlled SSH administration through a hardened <strong>Bastion Host</strong> in the public tier.</li>
   <li>Enables outbound traffic (package updates, external APIs) via redundant <strong>NAT Gateways</strong>.</li>
   <li>Uses a single <strong>Internet Gateway</strong> to expose only what is necessary (e.g., an ALB in front of your app, or future services).</li>
@@ -65,6 +28,28 @@
   <!-- Place your screenshot in docs/architecture.png or adjust the path -->
   <img src="docs/architecture.png" alt="VPC Architecture diagram with two AZs, NAT gateways, Bastion host, MySQL, Cache, and private EC2 instances">
 </div>
+
+<!-- ============ TECH STACK ============ -->
+<h2>🧰 Tech Stack Used</h2>
+<table>
+  <thead>
+    <tr><th>Category</th><th>Technology</th><th>Description</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Backend</td><td><code>Flask</code></td><td>Lightweight Python web framework powering the e-commerce app</td></tr>
+    <tr><td>Database</td><td><code>MySQL (RDS)</code></td><td>Relational database hosted in a private subnet using Amazon RDS</td></tr>
+    <tr><td>DevOps</td><td><code>Docker</code></td><td>Containerizes the Flask app for consistent deployment</td></tr>
+    <tr><td>App Hosting</td><td><code>Gunicorn</code></td><td>WSGI server used for serving the Flask app in production</td></tr>
+    <tr><td>Frontend</td><td><code>HTML + Jinja2</code></td><td>Flask's templating engine to render dynamic content</td></tr>
+    <tr><td>Search</td><td><code>SQLite (local)</code></td><td>Used optionally for fast local prototyping/testing before RDS integration</td></tr>
+    <tr><td>Networking</td><td><code>VPC</code></td><td>Virtual network to logically isolate resources in the cloud</td></tr>
+    <tr><td>Security</td><td><code>Security Groups</code></td><td>Firewall rules to control traffic between EC2, RDS, Bastion</td></tr>
+    <tr><td>Internet Access</td><td><code>NAT Gateway</code></td><td>Provides internet access to private subnet resources</td></tr>
+    <tr><td>SSH Access</td><td><code>Bastion Host</code></td><td>Jump server to SSH into private EC2 instances securely</td></tr>
+    <tr><td>Cache</td><td><code>ElastiCache (Redis or Memcached)</code></td><td>Used for session or catalog caching in private subnet</td></tr>
+    <tr><td>Container Base</td><td><code>python:3.8-slim</code></td><td>Lightweight image to keep container size small and efficient</td></tr>
+  </tbody>
+</table>
 
 <!-- ============ COMPONENTS ============ -->
 <h2>🔧 Components</h2>
