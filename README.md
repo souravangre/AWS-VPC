@@ -7,7 +7,7 @@
 <main>
 
 <!-- ============ TITLE & TAGLINE ============ -->
-<h1>📘 AWS VPC – Secure Web Hosting with Private EC2 & Bastion</h1>
+<h1>🛡️ AWS VPC – Secure Web Hosting with Private EC2 & Bastion</h1>
 <p class="note">—</strong> A production-ready VPC architecture that keeps compute, data nodes <em>private</em>, funnels administration through a Bastion host, and lets application servers reach the internet via highly-available NAT Gateways.</p>
 
 <!-- ============ OVERVIEW ============ -->
@@ -70,32 +70,7 @@
       <td><strong>NAT Gateway</strong></td>
       <td>Enables private instances to access the internet (for updates, wget, etc.) securely.</td>
     </tr>
-    <tr>
-      <td><strong>MySQL on EC2</strong></td>
-      <td>Relational database hosted securely in the private subnet.</td>
-    </tr>
-    <tr>
-      <td><strong>ElastiCache (optional)</strong></td>
-      <td>Managed caching service for fast data retrieval.</td>
-    </tr>
   </tbody>
-</table>
-
-
-<!-- ============ COMPONENTS ============ -->
-<h2>🔧 Components</h2>
-
-<table>
-<thead>
-<tr><th>Layer</th><th>Resource</th><th>Description</th></tr>
-</thead>
-<tbody>
-<tr><td rowspan="2"><span class="badge">Public&nbsp;Subnet</span></td><td>Bastion Host<br><code>t3.micro (ssh-only)</code></td><td>Single entry point for administration; locked to specific IPs via Security Group rules.</td></tr>
-<tr><td>2 × NAT Gateway</td><td>One per AZ to provide outbound internet for private instances; elastic IP attached.</td></tr>
-<tr><td rowspan="3"><span class="badge">Private&nbsp;Subnet</span></td><td>EC2 App Servers</td><td>Dockerised Flask app (<code>souravangre/flask-fitstore</code>) responding on port 4000.</td></tr>
-<tr><td>MySQL RDS</td><td>Managed relational database (single-AZ or Multi-AZ, depending on budget).</td></tr>
-<tr><td>Cache Node</td><td>Elasticache Redis/Memcached for low-latency session &amp; catalogue caching.</td></tr>
-</tbody>
 </table>
 
 <!-- ============ CIDR & ROUTING ============ -->
@@ -224,14 +199,6 @@
   </li>
 </ol>
 
-
-<!-- ============ LOCAL TEST VIA SSH TUNNEL ============ -->
-<h2>🛠️ Quick Local Test (SSH Tunnel)</h2>
-<pre><code># Forward local port 8080 ➜ private EC2:4000 through Bastion
-ssh -i Bastion.pem -L 8080:172.16.1.123:4000 ubuntu@&lt;Bastion-IP&gt;
-# Then open: http://localhost:8080
-</code></pre>
-
 <!-- ============ FUTURE WORK ============ -->
 <h2>📈 Future Enhancements</h2>
 <ul>
@@ -242,14 +209,10 @@ ssh -i Bastion.pem -L 8080:172.16.1.123:4000 ubuntu@&lt;Bastion-IP&gt;
   <li>Integrate <strong>CloudWatch Alarms</strong> &amp; <strong>WAF</strong>.</li>
 </ul>
 
-<!-- ============ LICENSE & CONTACT ============ -->
-<h2>📜 License</h2>
-<p>MIT – free to use, modify, and distribute.</p>
 
 <h2>🤝 Contact</h2>
 <p>
   Built with ❤️ by <a href="https://github.com/souravangre" target="_blank">@souravangre</a>.  
-  Feel free to open issues or PRs!
 </p>
 
 </main>
