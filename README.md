@@ -8,7 +8,7 @@
 
 <!-- ============ TITLE & TAGLINE ============ -->
 <h1>📘 AWS VPC – Secure Web Hosting with Private EC2 & Bastion</h1>
-<p class="note"><strong>TL;DR&nbsp;—</strong> A production-ready VPC architecture that keeps compute, data and cache nodes <em>private</em>, funnels administration through a Bastion host, and lets application servers reach the internet via highly-available NAT Gateways.</p>
+<p class="note">—</strong> A production-ready VPC architecture that keeps compute, data nodes <em>private</em>, funnels administration through a Bastion host, and lets application servers reach the internet via highly-available NAT Gateways.</p>
 
 <!-- ============ OVERVIEW ============ -->
 <h2>📌 Overview</h2>
@@ -29,27 +29,58 @@
   <img src="docs/architecture.png" alt="VPC Architecture diagram with two AZs, NAT gateways, Bastion host, MySQL, Cache, and private EC2 instances">
 </div>
 
-<!-- ============ TECH STACK ============ -->
-<h2>🧰 Tech Stack Used</h2>
+<h2>🧰 AWS Services Used</h2>
 <table>
   <thead>
-    <tr><th>Category</th><th>Technology</th><th>Description</th></tr>
+    <tr>
+      <th>Service</th>
+      <th>Purpose</th>
+    </tr>
   </thead>
   <tbody>
-    <tr><td>Backend</td><td><code>Flask</code></td><td>Lightweight Python web framework powering the e-commerce app</td></tr>
-    <tr><td>Database</td><td><code>MySQL (RDS)</code></td><td>Relational database hosted in a private subnet using Amazon RDS</td></tr>
-    <tr><td>DevOps</td><td><code>Docker</code></td><td>Containerizes the Flask app for consistent deployment</td></tr>
-    <tr><td>App Hosting</td><td><code>Gunicorn</code></td><td>WSGI server used for serving the Flask app in production</td></tr>
-    <tr><td>Frontend</td><td><code>HTML + Jinja2</code></td><td>Flask's templating engine to render dynamic content</td></tr>
-    <tr><td>Search</td><td><code>SQLite (local)</code></td><td>Used optionally for fast local prototyping/testing before RDS integration</td></tr>
-    <tr><td>Networking</td><td><code>VPC</code></td><td>Virtual network to logically isolate resources in the cloud</td></tr>
-    <tr><td>Security</td><td><code>Security Groups</code></td><td>Firewall rules to control traffic between EC2, RDS, Bastion</td></tr>
-    <tr><td>Internet Access</td><td><code>NAT Gateway</code></td><td>Provides internet access to private subnet resources</td></tr>
-    <tr><td>SSH Access</td><td><code>Bastion Host</code></td><td>Jump server to SSH into private EC2 instances securely</td></tr>
-    <tr><td>Cache</td><td><code>ElastiCache (Redis or Memcached)</code></td><td>Used for session or catalog caching in private subnet</td></tr>
-    <tr><td>Container Base</td><td><code>python:3.8-slim</code></td><td>Lightweight image to keep container size small and efficient</td></tr>
+    <tr>
+      <td><strong>Amazon VPC</strong></td>
+      <td>Custom Virtual Private Cloud with public and private subnets across multiple availability zones.</td>
+    </tr>
+    <tr>
+      <td><strong>EC2</strong></td>
+      <td>Virtual machines used to host the Bastion Host and the Private Web Server.</td>
+    </tr>
+    <tr>
+      <td><strong>Bastion Host</strong></td>
+      <td>Provides secure SSH access to instances in the private subnet.</td>
+    </tr>
+    <tr>
+      <td><strong>Application Load Balancer (ALB)</strong></td>
+      <td>Internet-facing ALB routes external traffic to the private web server.</td>
+    </tr>
+    <tr>
+      <td><strong>Security Groups</strong></td>
+      <td>Controls inbound/outbound traffic for EC2 instances and ALB.</td>
+    </tr>
+    <tr>
+      <td><strong>Route Tables</strong></td>
+      <td>Manages routing between public/private subnets and the internet.</td>
+    </tr>
+    <tr>
+      <td><strong>Internet Gateway</strong></td>
+      <td>Allows resources in public subnet to access the internet.</td>
+    </tr>
+    <tr>
+      <td><strong>NAT Gateway</strong></td>
+      <td>Enables private instances to access the internet (for updates, wget, etc.) securely.</td>
+    </tr>
+    <tr>
+      <td><strong>MySQL on EC2</strong></td>
+      <td>Relational database hosted securely in the private subnet.</td>
+    </tr>
+    <tr>
+      <td><strong>ElastiCache (optional)</strong></td>
+      <td>Managed caching service for fast data retrieval.</td>
+    </tr>
   </tbody>
 </table>
+
 
 <!-- ============ COMPONENTS ============ -->
 <h2>🔧 Components</h2>
@@ -94,28 +125,105 @@
     <ul>
       <li><code>sg_bastion</code>: SSH (22) from admin IPs → Bastion.</li>
       <li><code>sg_app</code>: HTTP/HTTPS from ALB or internal LB only → App EC2.</li>
-      <li><code>sg_db</code>: MySQL (3306) from <code>sg_app</code> only.</li>
-      <li><code>sg_cache</code>: Redis/Memcached port from <code>sg_app</code>.</li>
+      <li><code>sg_elb</code>: HTTP/HTTPS from Anywhere to access the site on private EC2.</li>
     </ul>
   </li>
   <li><strong>NACLs</strong> left at default (stateful SGs are primary guard-rails).</li>
-  <li><strong>IAM roles</strong> grant minimal S3/CloudWatch permissions to instances.</li>
 </ul>
 
 <!-- ============ DEPLOYMENT ============ -->
-<h2>🚀 Deployment Steps (Manual)</h2>
+<!-- ============ DEPLOYMENT STEPS ============ -->
+<h2>🚀 Deployment Steps</h2>
+
 <ol>
-  <li>Create the VPC and subnets (or import via Terraform).</li>
-  <li>Attach an Internet Gateway and set up route tables.</li>
-  <li>Spin up NAT Gateways, allocate Elastic IPs.</li>
-  <li>Launch the Bastion EC2 in a public subnet.<br>
-      <code>ssh -i Bastion.pem ubuntu@&lt;Public-IP&gt;</code></li>
-  <li>Launch private EC2 app servers with the Docker image:<br>
-<pre><code>docker pull souravangre/flask-fitstore
-docker run -d -p 4000:4000 --restart unless-stopped \
-  --name fitstore souravangre/flask-fitstore</code></pre></li>
-  <li>Optionally attach an Application Load Balancer in front of <code>sg_app</code> for public traffic.</li>
+  <li><strong>Create the VPC</strong>
+    <ul>
+      <li>CIDR block&nbsp;– <code>172.16.0.0/16</code></li>
+    </ul>
+  </li>
+
+  <li><strong>Create Four Subnets</strong>
+    <ul>
+      <li>Public&nbsp;AZ-A&nbsp;→ <code>172.16.0.0/24</code></li>
+      <li>Private&nbsp;AZ-A&nbsp;→ <code>172.16.1.0/24</code></li>
+      <li>Public&nbsp;AZ-B&nbsp;→ <code>172.16.2.0/24</code></li>
+      <li>Private&nbsp;AZ-B&nbsp;→ <code>172.16.3.0/24</code></li>
+    </ul>
+  </li>
+
+  <li><strong>Attach an Internet Gateway</strong>
+    <ul>
+      <li>Create IGW → <em>Actions → Attach to VPC</em></li>
+    </ul>
+  </li>
+
+  <li><strong>Configure the <em>Public</em> Route Table</strong>
+    <ul>
+      <li>Create RT, associate with VPC</li>
+      <li><em>Subnet associations</em> → tick both public subnets</li>
+      <li><em>Routes</em> → <code>0.0.0.0/0 → igw-xxxxxxxx</code></li>
+    </ul>
+  </li>
+
+  <li><strong>Provision NAT Gateways (HA)</strong>
+    <ul>
+      <li>Create two Elastic IPs (one per AZ)</li>
+      <li>Create NAT GW in each public subnet, attach its EIP</li>
+    </ul>
+  </li>
+
+  <li><strong>Configure the <em>Private</em> Route Table</strong>
+    <ul>
+      <li>Create RT, associate with VPC</li>
+      <li><em>Subnet associations</em> → tick both private subnets</li>
+      <li><em>Routes</em> → <code>0.0.0.0/0 → nat-gw-az-a</code> (for AZ-A RT) and<br>
+          &nbsp;&nbsp;&nbsp;<code>0.0.0.0/0 → nat-gw-az-b</code> (for AZ-B RT)</li>
+    </ul>
+  </li>
+
+  <li><strong>Launch Bastion Host</strong>
+    <ul>
+      <li>Key pair + <code>sg_bastion</code> (SSH from your IP)</li>
+      <li>Place in <em>public</em> subnet AZ-A (or AZ-B)</li>
+    </ul>
+  </li>
+
+  <li><strong>Launch Private Web Server</strong>
+    <ul>
+      <li>AMI: Ubuntu 22.04 LTS (example)</li>
+      <li>Subnet: <em>private</em> (no public IP)</li>
+      <li>Security Group <code>sg_app</code> – allow port 80/4000 from ALB SG</li>
+      <li>SSH in via Bastion → install packages &amp; deploy site</li>
+    </ul>
+  </li>
+
+  <li><strong>Set Up the Application Load Balancer</strong>
+    <ol type="a">
+      <li><em>Target Group</em>
+        <ul>
+          <li>Type = Instance, Protocol = HTTP:80, VPC = your VPC</li>
+          <li>Register the private web server</li>
+        </ul>
+      </li>
+      <li><em>ALB</em>
+        <ul>
+          <li>Scheme = Internet-facing</li>
+          <li>Subnets = both public subnets</li>
+          <li>Security Group <code>sg_alb</code> – allow HTTP 80 from 0.0.0.0/0</li>
+          <li>Listener 80 → forward to the target group</li>
+        </ul>
+      </li>
+    </ol>
+  </li>
+
+  <li><strong>Smoke-Test the Stack</strong>
+    <ul>
+      <li>Browser → <code>http://&lt;ALB-DNS&gt;</code> should load your site 🎉</li>
+      <li>Optional: SSH tunnel via Bastion to verify direct app port</li>
+    </ul>
+  </li>
 </ol>
+
 
 <!-- ============ LOCAL TEST VIA SSH TUNNEL ============ -->
 <h2>🛠️ Quick Local Test (SSH Tunnel)</h2>
