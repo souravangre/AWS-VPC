@@ -26,11 +26,15 @@
 <h2>🏗️ Architecture Diagram</h2>
 <div class="diagram">
   <!-- Place your screenshot in docs/architecture.png or adjust the path -->
+  ![Screenshot 2025-05-26 202130](https://github.com/user-attachments/assets/2a09ea69-a78a-43b0-8abe-7312c28271d9)
+
   <img src="docs/architecture.png" alt="VPC Architecture diagram with two AZs, NAT gateways, Bastion host, MySQL, Cache, and private EC2 instances">
 </div>
 
 <h2>🧰 AWS Services Used</h2>
 <table>
+
+  
   <thead>
     <tr>
       <th>Service</th>
