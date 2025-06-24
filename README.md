@@ -25,9 +25,8 @@
 <!-- ============ ARCHITECTURE DIAGRAM ============ -->
 <h2>🏗️ Architecture Diagram</h2>
 <div class="diagram">
+  <img src="https://github.com/user-attachments/assets/b2a03f97-e867-4fde-9d7b-c5b7469a966c">
   <!-- Place your screenshot in docs/architecture.png or adjust the path -->
-![vpc](https://github.com/user-attachments/assets/b2a03f97-e867-4fde-9d7b-c5b7469a966c)
-
 </div>
 
 <h2>🧰 AWS Services Used</h2>
