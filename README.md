@@ -25,7 +25,8 @@
 <!-- ============ ARCHITECTURE DIAGRAM ============ -->
 <h2>🏗️ Architecture Diagram</h2>
 <div class="diagram">
-  <img src="https://github.com/user-attachments/assets/b2a03f97-e867-4fde-9d7b-c5b7469a966c">
+  <img src="https://github.com/user-attachments/assets/e2ba5559-e7e5-44e8-867e-4bc434174554">
+
   <!-- Place your screenshot in docs/architecture.png or adjust the path -->
 </div>
 
