@@ -7,7 +7,7 @@
 <main>
 
 <!-- ============ TITLE & TAGLINE ============ -->
-<h1>Ὢ1️ AWS VPC – Secure Web Hosting with Private EC2 & Bastion</h1>
+<h1> AWS VPC – Secure Web Hosting with Private EC2 & Bastion</h1>
 <p class="note">—</strong> A production-ready VPC architecture that keeps compute, data nodes <em>private</em>, funnels administration through a Bastion host, and lets application servers reach the internet via highly-available NAT Gateways.</p>
 
 <!-- ============ OVERVIEW ============ -->
